@@ -1,9 +1,15 @@
 import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
 import { migrate } from "drizzle-orm/mysql2/migrator";
 import mysql from "mysql2/promise";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { Logger } from "../utils/Logger.ts";
-import { type GuildSettings, guildSettings } from "../db/schema.ts";
+import {
+  type GuildSettings,
+  guildSettings,
+  type NewPaginationState,
+  type PaginationState,
+  paginationStates,
+} from "../db/schema.ts";
 
 export class DatabaseService {
   private static connection: mysql.Connection;
@@ -161,6 +167,65 @@ export class DatabaseService {
     return await db.select().from(guildSettings);
   }
 
+  static async savePaginationState(state: NewPaginationState): Promise<void> {
+    const db = await this.getDb();
+    await db
+      .insert(paginationStates)
+      .values(state)
+      .onDuplicateKeyUpdate({
+        set: {
+          currentPage: state.currentPage,
+          totalPages: state.totalPages,
+          worldDetailJson: state.worldDetailJson,
+        },
+      });
+  }
+
+  static async getPaginationState(
+    stateId: string,
+  ): Promise<PaginationState | null> {
+    const db = await this.getDb();
+    const results = await db
+      .select()
+      .from(paginationStates)
+      .where(eq(paginationStates.stateId, stateId))
+      .limit(1);
+
+    if (results.length > 0) {
+      return results[0];
+    }
+    return null;
+  }
+
+  static async deletePaginationState(stateId: string): Promise<void> {
+    const db = await this.getDb();
+    await db
+      .delete(paginationStates)
+      .where(eq(paginationStates.stateId, stateId));
+  }
+
+  static async getActivePaginationStates(): Promise<PaginationState[]> {
+    const db = await this.getDb();
+    return await db
+      .select()
+      .from(paginationStates);
+  }
+
+  static async deleteExpiredPaginationStates(): Promise<number> {
+    const db = await this.getDb();
+    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const result = await db
+      .delete(paginationStates)
+      .where(lt(paginationStates.createdAt, oneWeekAgo));
+
+    return result[0].affectedRows;
+  }
+
+  static async getAllPaginationStates(): Promise<PaginationState[]> {
+    const db = await this.getDb();
+    return await db.select().from(paginationStates);
+  }
+
   static async close(): Promise<void> {
     if (this.connection) {
       await this.connection.end();
@@ -168,4 +233,4 @@ export class DatabaseService {
   }
 }
 
-export type { GuildSettings } from "../db/schema.ts";
+export type { GuildSettings, PaginationState } from "../db/schema.ts";

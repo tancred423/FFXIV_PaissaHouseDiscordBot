@@ -6,6 +6,7 @@ import { DatabaseService } from "./services/DatabaseService.ts";
 import { AnnouncementSchedulerService } from "./services/AnnouncementSchedulerService.ts";
 import { Logger } from "./utils/Logger.ts";
 import { PresenceService } from "./services/PresenceService.ts";
+import { PaginationCleanupService } from "./services/PaginationCleanupService.ts";
 
 config();
 
@@ -76,6 +77,10 @@ client.once(Events.ClientReady, async () => {
   );
 
   await DatabaseService.initialize();
+
+  const paginationCleanup = new PaginationCleanupService(client);
+  await paginationCleanup.cleanupAndRestoreStates();
+  paginationCleanup.startPeriodicCleanup();
 
   const presenceService = new PresenceService(client);
   await presenceService.updatePresence();

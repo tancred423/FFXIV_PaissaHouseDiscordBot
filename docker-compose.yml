@@ -51,8 +51,10 @@ services:
       - DEPLOYMENT_HASH=${DEPLOYMENT_HASH:-dev}
       - ENVIRONMENT=development
       - MYSQL_HOST=mysql
+    command: deno task dev
     volumes:
       - ./src:/app/src
+      - ./deno.json:/app/deno.json
     networks:
       - mysql-network
     depends_on:

@@ -12,6 +12,7 @@
   "tasks": {
     "register": "deno run --allow-net --allow-env --allow-read --allow-ffi --unstable-ffi src/register-commands.ts",
     "start": "deno run --allow-net --allow-env --allow-read --allow-write --allow-ffi --unstable-ffi src/main.ts",
+    "dev": "deno run --watch --allow-net --allow-env --allow-read --allow-write --allow-ffi --unstable-ffi src/main.ts",
     "db:generate": "deno run -A npm:drizzle-kit generate",
     "db:migrate": "deno run --allow-net --allow-env --allow-read src/db/migrate.ts"
   },
