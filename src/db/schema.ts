@@ -21,6 +21,7 @@ export const paginationStates = mysqlTable("pagination_states", {
   totalPages: bigint("total_pages", { mode: "number" }).notNull(),
   worldDetailJson: text("world_detail_json").notNull(),
   createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  lastRefreshed: bigint("last_refreshed", { mode: "number" }).notNull(),
 });
 
 export type GuildSettings = typeof guildSettings.$inferSelect;

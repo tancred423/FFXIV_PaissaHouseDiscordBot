@@ -107,6 +107,7 @@ export class PaissaCommand extends BaseCommand {
             sizeFilter: dbState.sizeFilter,
             lotteryPhaseFilter: dbState.lotteryPhaseFilter,
             allowedTenantsFilter: dbState.allowedTenantsFilter,
+            lastRefreshed: dbState.lastRefreshed,
           };
 
           paginationStates.set(dbState.stateId, state);
@@ -161,6 +162,7 @@ export class PaissaCommand extends BaseCommand {
 
     await interaction.deferReply();
 
+    const now = Date.now();
     const worldDetail = await PaissaApiService.fetchWorldDetail(worldId);
     const { embed, hasPagination, totalPlots } = await this.createHousingEmbed(
       worldDetail,
@@ -169,6 +171,7 @@ export class PaissaCommand extends BaseCommand {
       lotteryPhaseFilter,
       allowedTenantsFilter,
       0,
+      now,
     );
 
     if (!hasPagination) {
@@ -184,6 +187,7 @@ export class PaissaCommand extends BaseCommand {
         sizeFilter,
         lotteryPhaseFilter,
         allowedTenantsFilter,
+        lastRefreshed: now,
       };
 
       paginationStates.set(stateId, state);
@@ -226,6 +230,7 @@ export class PaissaCommand extends BaseCommand {
       sizeFilter,
       lotteryPhaseFilter,
       allowedTenantsFilter,
+      lastRefreshed: now,
     };
 
     paginationStates.set(stateId, state);
@@ -416,6 +421,7 @@ export class PaissaCommand extends BaseCommand {
     lotteryPhaseFilter: number | null,
     allowedTenantsFilter: number | null,
     page: number = 0,
+    lastRefreshed?: number,
   ): Promise<
     { embed: EmbedBuilder; hasPagination: boolean; totalPlots: number }
   > {
@@ -551,6 +557,10 @@ export class PaissaCommand extends BaseCommand {
       .setDescription(description)
       .setColor(ColorHelper.getEmbedColor());
 
+    if (lastRefreshed) {
+      embed.setTimestamp(lastRefreshed);
+    }
+
     if (currentPlots.length > 0) {
       currentPlots.forEach((plot: PlotWithDistrict) => {
         embed.addFields({
@@ -591,11 +601,6 @@ export class PaissaCommand extends BaseCommand {
   ): ActionRowBuilder<ButtonBuilder> {
     const row = new ActionRowBuilder<ButtonBuilder>();
 
-    const refreshButton = new ButtonBuilder()
-      .setCustomId("pagination_refresh")
-      .setLabel("🔄 Refresh")
-      .setStyle(ButtonStyle.Secondary);
-
     const jumpToStartButton = new ButtonBuilder()
       .setCustomId("pagination_jump_start")
       .setLabel("⏮️")
@@ -607,6 +612,11 @@ export class PaissaCommand extends BaseCommand {
       .setLabel("◀️ Previous")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(currentPage <= 0);
+
+    const refreshButton = new ButtonBuilder()
+      .setCustomId("pagination_refresh")
+      .setLabel("🔄 Refresh")
+      .setStyle(ButtonStyle.Secondary);
 
     const nextButton = new ButtonBuilder()
       .setCustomId("pagination_next")
@@ -666,6 +676,7 @@ export class PaissaCommand extends BaseCommand {
         totalPages: state.totalPages,
         worldDetailJson: JSON.stringify(state.worldDetail),
         createdAt: Date.now(),
+        lastRefreshed: state.lastRefreshed,
       });
     } catch (error: unknown) {
       Logger.error(
@@ -698,6 +709,7 @@ export class PaissaCommand extends BaseCommand {
           totalPages: state.totalPages,
           worldDetailJson: JSON.stringify(state.worldDetail),
           createdAt: dbState.createdAt,
+          lastRefreshed: state.lastRefreshed,
         });
       }
     } catch (error: unknown) {
@@ -760,6 +772,7 @@ export class PaissaCommand extends BaseCommand {
             state.worldId,
           );
           state.worldDetail = freshWorldDetail;
+          state.lastRefreshed = Date.now();
 
           const filteredPlots = this.getFilteredPlots(
             freshWorldDetail,
@@ -776,6 +789,7 @@ export class PaissaCommand extends BaseCommand {
               state.lotteryPhaseFilter,
               state.allowedTenantsFilter,
               state.currentPage,
+              state.lastRefreshed,
             );
 
           const newTotalPages = Math.ceil(totalPlots / PLOTS_PER_PAGE);
@@ -839,6 +853,7 @@ export class PaissaCommand extends BaseCommand {
           state.lotteryPhaseFilter,
           state.allowedTenantsFilter,
           newPage,
+          state.lastRefreshed,
         );
         const buttons = this.createPaginationButtons(newPage, state.totalPages);
 
