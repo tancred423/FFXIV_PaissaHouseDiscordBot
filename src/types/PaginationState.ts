@@ -6,8 +6,10 @@ export interface PaginationState {
   currentPage: number;
   totalPages: number;
   worldDetail: WorldDetail;
+  worldId: number;
   districtId: number | null;
   sizeFilter: number | null;
   lotteryPhaseFilter: number | null;
   allowedTenantsFilter: number | null;
+  lastRefreshed: number;
 }

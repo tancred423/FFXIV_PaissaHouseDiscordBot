@@ -89,6 +89,10 @@ export class PresenceService {
       return `${days} ${days === 1 ? "day" : "days"}`;
     }
 
+    if (roundedHours === 24) {
+      return "1 day";
+    }
+
     if (roundedHours >= 2) {
       return `${roundedHours} ${roundedHours === 1 ? "hour" : "hours"}`;
     }
