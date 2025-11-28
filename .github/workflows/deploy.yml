@@ -63,6 +63,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ vars.USERNAME_LOWERCASE }} --password-stdin
             cd ~/paissa-bot
             # Export the hash for docker compose
             export DEPLOYMENT_HASH=${{ github.sha }}
