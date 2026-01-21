@@ -107,6 +107,8 @@ export class PaissaCommand extends BaseCommand {
             sizeFilter: dbState.sizeFilter,
             lotteryPhaseFilter: dbState.lotteryPhaseFilter,
             allowedTenantsFilter: dbState.allowedTenantsFilter,
+            plotFilter: dbState.plotFilter,
+            wardFilter: dbState.wardFilter,
             lastRefreshed: dbState.lastRefreshed,
           };
 
@@ -158,6 +160,8 @@ export class PaissaCommand extends BaseCommand {
       sizeFilter,
       lotteryPhaseFilter,
       allowedTenantsFilter,
+      plotFilter,
+      wardFilter,
     } = this.parseOptions(interaction);
 
     await interaction.deferReply();
@@ -170,6 +174,8 @@ export class PaissaCommand extends BaseCommand {
       sizeFilter,
       lotteryPhaseFilter,
       allowedTenantsFilter,
+      plotFilter,
+      wardFilter,
       0,
       now,
     );
@@ -187,6 +193,8 @@ export class PaissaCommand extends BaseCommand {
         sizeFilter,
         lotteryPhaseFilter,
         allowedTenantsFilter,
+        plotFilter,
+        wardFilter,
         lastRefreshed: now,
       };
 
@@ -218,6 +226,8 @@ export class PaissaCommand extends BaseCommand {
       worldDetail,
       districtFilter,
       sizeFilter,
+      plotFilter,
+      wardFilter,
     );
 
     const state: PaginationState = {
@@ -230,6 +240,8 @@ export class PaissaCommand extends BaseCommand {
       sizeFilter,
       lotteryPhaseFilter,
       allowedTenantsFilter,
+      plotFilter,
+      wardFilter,
       lastRefreshed: now,
     };
 
@@ -348,6 +360,24 @@ export class PaissaCommand extends BaseCommand {
                 },
               )
           )
+          .addIntegerOption((option) =>
+            option
+              .setName("plot")
+              .setDescription(
+                "Filter by plot (1-30). Includes subdivisions (e.g. 30 also shows 60)",
+              )
+              .setRequired(false)
+              .setMinValue(1)
+              .setMaxValue(30)
+          )
+          .addIntegerOption((option) =>
+            option
+              .setName("ward")
+              .setDescription("Filter by exact ward number (1-30)")
+              .setRequired(false)
+              .setMinValue(1)
+              .setMaxValue(30)
+          )
       );
     });
 
@@ -360,6 +390,8 @@ export class PaissaCommand extends BaseCommand {
     sizeFilter: number | null;
     lotteryPhaseFilter: number | null;
     allowedTenantsFilter: number | null;
+    plotFilter: number | null;
+    wardFilter: number | null;
   } {
     const worldId = parseInt(interaction.options.getString("world")!);
     const districtIdString = interaction.options.getString("district");
@@ -376,6 +408,8 @@ export class PaissaCommand extends BaseCommand {
     const allowedTenantsFilter = allowedTenantsString
       ? parseInt(allowedTenantsString)
       : null;
+    const plotFilter = interaction.options.getInteger("plot");
+    const wardFilter = interaction.options.getInteger("ward");
 
     return {
       worldId,
@@ -383,6 +417,8 @@ export class PaissaCommand extends BaseCommand {
       sizeFilter,
       lotteryPhaseFilter,
       allowedTenantsFilter,
+      plotFilter,
+      wardFilter,
     };
   }
 
@@ -390,6 +426,8 @@ export class PaissaCommand extends BaseCommand {
     worldDetail: WorldDetail,
     districtFilter: number | null = null,
     sizeFilter: number | null = null,
+    plotFilter: number | null = null,
+    wardFilter: number | null = null,
   ): PlotWithDistrict[] {
     const allPlots: PlotWithDistrict[] = worldDetail.districts.flatMap((
       district,
@@ -410,6 +448,20 @@ export class PaissaCommand extends BaseCommand {
     if (sizeFilter !== null) {
       filteredPlots = filteredPlots.filter((plot) => plot.size === sizeFilter);
     }
+    if (plotFilter !== null) {
+      const apiPlotIndex = plotFilter - 1;
+      const apiPlotIndexDuplicate = apiPlotIndex + 30;
+      filteredPlots = filteredPlots.filter((plot) =>
+        plot.plot_number === apiPlotIndex ||
+        plot.plot_number === apiPlotIndexDuplicate
+      );
+    }
+    if (wardFilter !== null) {
+      const apiWardIndex = wardFilter - 1;
+      filteredPlots = filteredPlots.filter((plot) =>
+        plot.ward_number === apiWardIndex
+      );
+    }
 
     return filteredPlots;
   }
@@ -420,6 +472,8 @@ export class PaissaCommand extends BaseCommand {
     sizeFilter: number | null,
     lotteryPhaseFilter: number | null,
     allowedTenantsFilter: number | null,
+    plotFilter: number | null,
+    wardFilter: number | null,
     page: number = 0,
     lastRefreshed?: number,
   ): Promise<
@@ -443,6 +497,20 @@ export class PaissaCommand extends BaseCommand {
     }
     if (sizeFilter !== null) {
       filteredPlots = filteredPlots.filter((plot) => plot.size === sizeFilter);
+    }
+    if (plotFilter !== null) {
+      const apiPlotIndex = plotFilter - 1;
+      const apiPlotIndexDuplicate = apiPlotIndex + 30;
+      filteredPlots = filteredPlots.filter((plot) =>
+        plot.plot_number === apiPlotIndex ||
+        plot.plot_number === apiPlotIndexDuplicate
+      );
+    }
+    if (wardFilter !== null) {
+      const apiWardIndex = wardFilter - 1;
+      filteredPlots = filteredPlots.filter((plot) =>
+        plot.ward_number === apiWardIndex
+      );
     }
     if (lotteryPhaseFilter !== null) {
       filteredPlots = filteredPlots.filter((plot) => {
@@ -520,6 +588,12 @@ export class PaissaCommand extends BaseCommand {
     }
     if (sizeFilter !== null) {
       activeFilters.push(TextOutputBuilder.buildSizeWithEmoji(sizeFilter));
+    }
+    if (plotFilter !== null) {
+      activeFilters.push(TextOutputBuilder.buildPlotWithEmoji(plotFilter));
+    }
+    if (wardFilter !== null) {
+      activeFilters.push(TextOutputBuilder.buildWardWithEmoji(wardFilter));
     }
     if (lotteryPhaseFilter !== null) {
       activeFilters.push(
@@ -672,6 +746,8 @@ export class PaissaCommand extends BaseCommand {
         sizeFilter: state.sizeFilter,
         lotteryPhaseFilter: state.lotteryPhaseFilter,
         allowedTenantsFilter: state.allowedTenantsFilter,
+        plotFilter: state.plotFilter,
+        wardFilter: state.wardFilter,
         currentPage: state.currentPage,
         totalPages: state.totalPages,
         worldDetailJson: JSON.stringify(state.worldDetail),
@@ -705,6 +781,8 @@ export class PaissaCommand extends BaseCommand {
           sizeFilter: state.sizeFilter,
           lotteryPhaseFilter: state.lotteryPhaseFilter,
           allowedTenantsFilter: state.allowedTenantsFilter,
+          plotFilter: state.plotFilter,
+          wardFilter: state.wardFilter,
           currentPage: state.currentPage,
           totalPages: state.totalPages,
           worldDetailJson: JSON.stringify(state.worldDetail),
@@ -778,6 +856,8 @@ export class PaissaCommand extends BaseCommand {
             freshWorldDetail,
             state.districtId,
             state.sizeFilter,
+            state.plotFilter,
+            state.wardFilter,
           );
           state.plots = filteredPlots;
 
@@ -788,6 +868,8 @@ export class PaissaCommand extends BaseCommand {
               state.sizeFilter,
               state.lotteryPhaseFilter,
               state.allowedTenantsFilter,
+              state.plotFilter,
+              state.wardFilter,
               state.currentPage,
               state.lastRefreshed,
             );
@@ -852,6 +934,8 @@ export class PaissaCommand extends BaseCommand {
           state.sizeFilter,
           state.lotteryPhaseFilter,
           state.allowedTenantsFilter,
+          state.plotFilter,
+          state.wardFilter,
           newPage,
           state.lastRefreshed,
         );
