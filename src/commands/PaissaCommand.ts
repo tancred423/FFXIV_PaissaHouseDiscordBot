@@ -623,6 +623,8 @@ export class PaissaCommand extends BaseCommand {
       sizeFilter,
       lotteryPhaseFilter,
       allowedTenantsFilter,
+      plotFilter,
+      wardFilter,
     );
 
     const embed = new EmbedBuilder()
