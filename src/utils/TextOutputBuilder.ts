@@ -123,4 +123,13 @@ export class TextOutputBuilder {
         throw Error("Invalid size");
     }
   }
+
+  static buildWardWithEmoji(ward: number): string {
+    return EmojiHelper.get(EmojiName.EMOJI_WARD) + " Ward " + ward;
+  }
+
+  static buildPlotWithEmoji(plot: number): string {
+    return EmojiHelper.get(EmojiName.EMOJI_PLOT) + " Plot " + plot + " / " +
+      (plot + 30);
+  }
 }

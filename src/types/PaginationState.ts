@@ -11,5 +11,7 @@ export interface PaginationState {
   sizeFilter: number | null;
   lotteryPhaseFilter: number | null;
   allowedTenantsFilter: number | null;
+  plotFilter: number | null;
+  wardFilter: number | null;
   lastRefreshed: number;
 }

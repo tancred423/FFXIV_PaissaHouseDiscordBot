@@ -17,6 +17,8 @@ export const paginationStates = mysqlTable("pagination_states", {
   sizeFilter: bigint("size_filter", { mode: "number" }),
   lotteryPhaseFilter: bigint("lottery_phase_filter", { mode: "number" }),
   allowedTenantsFilter: bigint("allowed_tenants_filter", { mode: "number" }),
+  plotFilter: bigint("plot_filter", { mode: "number" }),
+  wardFilter: bigint("ward_filter", { mode: "number" }),
   currentPage: bigint("current_page", { mode: "number" }).notNull(),
   totalPages: bigint("total_pages", { mode: "number" }).notNull(),
   worldDetailJson: text("world_detail_json").notNull(),

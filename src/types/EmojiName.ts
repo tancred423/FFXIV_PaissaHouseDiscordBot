@@ -15,4 +15,6 @@ export enum EmojiName {
   EMOJI_SMALL,
   EMOJI_MEDIUM,
   EMOJI_LARGE,
+  EMOJI_WARD,
+  EMOJI_PLOT,
 }
