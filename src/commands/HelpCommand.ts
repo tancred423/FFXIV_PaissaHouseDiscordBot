@@ -51,7 +51,7 @@ export class HelpCommand extends BaseCommand {
           name: "/paissa [datacenter] [world]",
           value:
             "Use this command to display current houses for sale. You will have to pick the command for your datacenter and then choose your world. There are optional parameters to filter the results:\n" +
-            "`/paissa [datacenter] [world] [district?] [size?] [lottery-phase?] [allowed-tenants?]`\n" +
+            "`/paissa [datacenter] [world] [district?] [size?] [lottery-phase?] [allowed-tenants?] [plot?] [ward?]`\n" +
             "The Discord slash command interface should guide you through this command with ease.",
           inline: false,
         },
