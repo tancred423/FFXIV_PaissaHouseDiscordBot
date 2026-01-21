@@ -75,6 +75,6 @@ jobs:
             docker run --rm --env-file .env \
               -e REGISTER_COMMANDS=true \
               -e ENVIRONMENT=production \
-              ghcr.io/${{ vars.USERNAME_LOWERCASE }}/paissa-house-discord-bot:latest
+              ghcr.io/${{ vars.USERNAME_LOWERCASE }}/paissa-house-discord-bot:${{ github.sha }}
             # Run the bot
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
