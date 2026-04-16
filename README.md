@@ -1,3 +1,7 @@
+> **Archived**
+>
+> Moved to https://gitlab.com/team-paissa/paissa-house
+
 <img align="left" width="70" height="70" src="https://zhu.codes/assets/PaissaLogo.c38c9420.png" alt="PaissaDB Logo">
 
 # PaissaHouse
